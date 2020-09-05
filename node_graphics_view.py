@@ -12,6 +12,12 @@ class QDMGraphicsView(QGraphicsView):
 
         self.setScene(self.grScene)
 
+        self.zoomInFactor = 1.25
+        self.zoomClamp = False  # 钳
+        self.zoom = 10
+        self.zoomStep = 1
+        self.zoomRange = [0, 10]
+
     def initUI(self):
         # 抗锯齿，防止图形走样
         self.setRenderHints(QPainter.Antialiasing | QPainter.HighQualityAntialiasing | QPainter.TextAntialiasing | QPainter.SmoothPixmapTransform)
@@ -68,3 +74,18 @@ class QDMGraphicsView(QGraphicsView):
 
     def rightMouseButtonRelease(self, event):
         return super().mouseReleaseEvent(event)
+
+    def wheelEvent(self, event):
+        # calculate our zoom Factor
+        zoomOutFactor = 1 / self.zoomInFactor
+
+        # calculate zoom
+        if event.angleDelta().y() > 0:
+            zoomFactor = self.zoomInFactor  # 放大
+            self.zoom += self.zoomStep
+        else:
+            zoomFactor = zoomOutFactor
+            self.zoom -= self.zoomStep
+
+        # set scene scale
+        self.scale(zoomFactor, zoomFactor)
